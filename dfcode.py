@@ -73,9 +73,11 @@ def main():
      
     for index, row in dfprod_grpsrted.iterrows():
          prodid3 = row['product']
-         prodg3 = dfcust_stage2.groupby('product').get_group(prodid3)
          #Drop customer record which has mutually exclusive product that would remain in stage2 df
-         mtlexc = dfexcl_tmp1[dfexcl_tmp1['product2'] == prodid3]
+         mtlexc = dfexcl_tmp1[dfexcl_tmp1['product1'] == prodid3]
+         mtlexcprod = mtlexc['product2']
+         dfcust_stage2 = dfcust_stage2[~dfcust_stage2['product'].isin(mtlexc)]
+         prodg3 = dfcust_stage2.groupby('product').get_group(prodid3)
          prodg3 = prodg3.sort_values(by = 'relevancy_score', ascending=False)
          prodg3 = prodg3.drop_duplicates(subset = ["customers"])
          dfprodg3 = pd.DataFrame(prodg3)
