@@ -81,15 +81,38 @@ def main():
          prodg3 = prodg3.sort_values(by = 'relevancy_score', ascending=False)
          prodg3 = prodg3.drop_duplicates(subset = ["customers"])
          dfprodg3 = pd.DataFrame(prodg3)
-         prodg3cnt = dfprodg3.count
-        #print(prodg3cnt)
-         if (prodg3cnt > 8):
-             prodgsliced3 = dfprodg3.iloc[:8]
+         prodg3cnt = len(dfprodg3)
+         prdlmt = dfprod_tmp1[dfprod_tmp1['product'] == prodid3]
+         #print(dfprod_tmp1[dfprod_tmp1['product']==prodid3])
+         prdlmtval = int(prdlmt['volume'])
+         #print(prodg3cnt,prdlmtval)
+         if (prodg3cnt > prdlmtval):
+             prodgsliced3 = dfprodg3.iloc[:prdlmtval]
              dfcust_stage3 = dfcust_stage3.append(prodgsliced3)
          else:
              prodgsliced3 = dfprodg3
              dfcust_stage3 = dfcust_stage3.append(prodgsliced3)
     #print(dfcust_stage3)
-    dfcust_stage3.to_csv('Dunhumby_submission.csv')
+    #dfcust_stage3.to_csv('Dunhumby_submission.csv',index=False)
+ 
+    dfcust_stage4 = pd.DataFrame(columns = ['customers', 'product', 'relevancy_score'])
+    #Final stage limit customer basket to 8
+    dffinal_stagegrp = dfcust_stage3.groupby(['customers'], sort=False)
+    dffinal_stagedf = dfcust_stage3.groupby(['customers'], sort=False).size().reset_index(name='count')
+    #print(dffinal_stagegrp)
+    for index, row in dffinal_stagedf.iterrows():
+         custname = row['customers']
+         custbasketcnt = row['count']
+         custg = pd.DataFrame(dffinal_stagegrp.get_group(custname))
+         if ( custbasketcnt > 8):
+              custslice = custg.iloc[:8]
+              dfcust_stage4 = dfcust_stage4.append(custslice)
+         else:
+             custslice = custg
+             dfcust_stage4 = dfcust_stage4.append(custslice)         
+
+    #print(dfcust_stage4)
+    dfcust_stage4.to_csv('Dunhumby_submission.csv',index=False)
+
 
 main()
