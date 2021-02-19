@@ -61,7 +61,18 @@ def main():
           dfcust_stage2 =  dfcust_stage2.append(prodgsliced2)
 
     #Apply Mutual Exclusion and Max count per customer 
-    
+    #Group the sorted dfcust_stage2 dataframe by product. Create a new dataframe that holds the product name and sum of relevancy score
+    dfprod_maxscore = pd.DataFrame(columns = ['product', 'sum_scores'])
+    dfprod_score = dfcust_stage2.groupby('product').sum()
+    print(dfprod_score)
+    for index, row in dfprod_tmp1.iterrows():
+          prodind3 = index
+          prodid3 = row['product']
+          scoresum = dfprod_score.loc[dfprod_score.index == prodid3, dfprod_score['relevancy_score'].iloc[0]
+          proddf = pd.Dataframe([[prodid3,scoresum]])
+          dfprod_maxscore =  dfprod_maxscore.append(proddf)
+          print(dfprod_maxscore)
+
 
      
 
