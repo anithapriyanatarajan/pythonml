@@ -62,18 +62,31 @@ def main():
 
     #Apply Mutual Exclusion and Max count per customer 
     #Group the sorted dfcust_stage2 dataframe by product. Create a new dataframe that holds the product name and sum of relevancy score
-    dfprod_maxscore = pd.DataFrame(columns = ['product', 'sum_scores'])
-    dfprod_score = dfcust_stage2.groupby('product').sum()
-    print(dfprod_score)
-    for index, row in dfprod_tmp1.iterrows():
-          prodind3 = index
-          prodid3 = row['product']
-          scoresum = dfprod_score.loc[dfprod_score.index == prodid3, dfprod_score['relevancy_score'].iloc[0]
-          proddf = pd.Dataframe([[prodid3,scoresum]])
-          dfprod_maxscore =  dfprod_maxscore.append(proddf)
-          print(dfprod_maxscore)
+    dfprod_score = dfcust_stage2.groupby('product').sum().reset_index()
+    #print(dfprod_score)
+    dfgrp_obj = dfprod_score.sort_values(by=['relevancy_score'], ascending=False)
+    dfprod_grpsrted = pd.DataFrame(dfgrp_obj)
+    #print(dfprod_grped)
+    #dfprod_grpsrted   
 
-
+    dfcust_stage3 = pd.DataFrame(columns = ['customers', 'product', 'relevancy_score'])
      
+    for index, row in dfprod_grpsrted.iterrows():
+         prodid3 = row['product']
+         prodg3 = dfcust_stage2.groupby('product').get_group(prodid3)
+         #Drop customer record which has mutually exclusive product that would remain in stage2 df
+         mtlexc = dfexcl_tmp1[dfexcl_tmp1['product2'] == prodid3]
+         prodg3 = prodg3.sort_values(by = 'relevancy_score', ascending=False)
+         prodg3 = prodg3.drop_duplicates(subset = ["customers"])
+         dfprodg3 = pd.DataFrame(prodg3)
+         prodg3cnt = dfprodg3.count
+#         print(prodg3cnt)
+         if (prodg3cnt > 8):
+             prodgsliced3 = dfprodg3.iloc[:8]
+             dfcust_stage3 = dfcust_stage3.append(prodgsliced3)
+         else:
+             prodgsliced3 = dfprodg3
+             dfcust_stage3 = dfcust_stage3.append(prodgsliced3)
+    print(dfcust_stage3)
 
 main()
